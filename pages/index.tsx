@@ -1,27 +1,28 @@
 import { GetNewsTopHeadLines } from '@/apis/NewsApis';
+import NewsList from '@/components/NewsList';
 import { NewsTopHeadLine } from '@/types/NewsTopHeadLine';
-import { GetStaticProps } from 'next';
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
 
-const index = (
-    props: GetStaticProps<{ newsTopHeadLines: NewsTopHeadLine }>,
-) => {
-    const newsTopHeadLines = props;
+const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+    const { newsTopHeadLines } = props;
 
     return (
         <div>
-            <p className="text-3xl font-bold underline">Hello World</p>
+            <h1>Hello </h1>
             {newsTopHeadLines && (
-                <textarea
-                    rows={10}
-                    value={JSON.stringify(newsTopHeadLines, null, 2)}
-                    readOnly
+                <NewsList
+                    status={newsTopHeadLines.status}
+                    totalResults={newsTopHeadLines.totalResults}
+                    articles={newsTopHeadLines.articles}
                 />
             )}
         </div>
     );
 };
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps<{
+    newsTopHeadLines: NewsTopHeadLine;
+}> = async () => {
     const newsTopHeadLines = await GetNewsTopHeadLines();
 
     return {
