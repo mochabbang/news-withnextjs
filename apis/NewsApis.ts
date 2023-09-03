@@ -9,7 +9,7 @@ export const GetNewsTopHeadLines = async () => {
         `https://newsapi.org/v2/top-headlines?country=kr&apiKey=${apiKey}`,
     );
 
-    const newsTopHeadLines: NewsTopHeadLine[] = apiNewsTopHeadLines.data;
+    const newsTopHeadLines: NewsTopHeadLine = apiNewsTopHeadLines.data;
 
     return newsTopHeadLines;
 };

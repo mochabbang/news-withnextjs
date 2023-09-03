@@ -1,4 +1,6 @@
-export interface Article {
+import { Source } from './Source';
+
+export type Article = {
     author: string;
     title: string;
     description: string;
@@ -6,4 +8,5 @@ export interface Article {
     urlToImage: string;
     publishedAt: string;
     content: string;
-}
+    source: Source;
+};

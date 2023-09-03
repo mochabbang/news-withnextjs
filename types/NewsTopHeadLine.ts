@@ -1,7 +1,7 @@
 import { Article } from './Article';
 
-export interface NewsTopHeadLine {
+export type NewsTopHeadLine = {
     status: string;
     totalResults: number;
-    articles: Article[];
-}
+    articles: Article[];    
+};
