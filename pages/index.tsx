@@ -8,7 +8,6 @@ const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
     return (
         <div>
-            <h1>Hello </h1>
             {newsTopHeadLines && (
                 <NewsList
                     status={newsTopHeadLines.status}

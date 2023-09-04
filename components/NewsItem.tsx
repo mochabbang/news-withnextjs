@@ -12,8 +12,8 @@ const NewsItem = (article: Article) => {
                     className="mr-1"
                     style={{
                         position: 'relative',
-                        width: '160px',
-                        height: '100px',
+                        minWidth: '260px',
+                        minHeight: '160px',
                     }}
                 >
                     <Link href={url} target="_blank" rel="noopener noreferrer">
@@ -26,17 +26,15 @@ const NewsItem = (article: Article) => {
                     </Link>
                 </div>
             )}
-            <div className="">
-                <h2 className="m-0">
-                    <Link
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-black"
-                    >
-                        {title}
-                    </Link>
-                </h2>
+            <div className="ml-2">
+                <Link
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-black text-xl font-bold"
+                >
+                    {title}
+                </Link>
                 <p className="m-0 leading-none mt-2 whitespace-normal">
                     {description}
                 </p>
