@@ -7,5 +7,5 @@ export default function imageLoader({
     width: number;
     quality: number;
 }) {
-    return `https://example.com/${src}?w=${width}&q=${quality || 75}`;
+    return `${src}?w=${width}&q=${quality || 75}`;
 }
