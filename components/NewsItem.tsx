@@ -1,4 +1,5 @@
 import { Article } from '@/types/Article';
+import imageLoader from '@/utilities/ImageLoader';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,12 +14,13 @@ const NewsItem = (article: Article) => {
                     style={{
                         position: 'relative',
                         minWidth: '260px',
-                        minHeight: '160px',
+                        height: '160px',
                     }}
                 >
                     <Link href={url} target="_blank" rel="noopener noreferrer">
                         <Image
                             src={urlToImage}
+                            loader={imageLoader}
                             alt="thumname"
                             fill
                             style={{ objectFit: 'cover' }}
