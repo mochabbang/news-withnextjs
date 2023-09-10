@@ -1,4 +1,5 @@
 import { GetNewsTopHeadLines } from '@/apis/NewsApis';
+import Categories from '@/components/Categories';
 import NewsList from '@/components/NewsList';
 import { NewsTopHeadLine } from '@/types/NewsTopHeadLine';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
@@ -9,11 +10,14 @@ const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     return (
         <div>
             {newsTopHeadLines && (
-                <NewsList
-                    status={newsTopHeadLines.status}
-                    totalResults={newsTopHeadLines.totalResults}
-                    articles={newsTopHeadLines.articles}
-                />
+                <>
+                    <Categories />
+                    <NewsList
+                        status={newsTopHeadLines.status}
+                        totalResults={newsTopHeadLines.totalResults}
+                        articles={newsTopHeadLines.articles}
+                    />
+                </>
             )}
         </div>
     );

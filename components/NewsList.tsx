@@ -11,10 +11,7 @@ const NewsList = (props: Props) => {
     const { articles } = props;
 
     return (
-        <div
-            className="box-border pb-12 my-0 mx-auto mt-8 md:w-full px-4"
-            style={{ width: '768px' }}
-        >
+        <div className="box-border pb-12 my-0 mx-auto mt-8 md:w-full px-4 w-[768px]">
             {articles &&
                 articles.map(
                     (article): JSX.Element => (
