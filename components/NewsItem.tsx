@@ -9,14 +9,7 @@ const NewsItem = (article: Article) => {
     return (
         <div className="flex mt-12">
             {urlToImage && (
-                <div
-                    className="mr-1"
-                    style={{
-                        position: 'relative',
-                        minWidth: '260px',
-                        height: '160px',
-                    }}
-                >
+                <div className="mr-1 relative min-w-[160px] h-[100px] md:min-w-[50px]">
                     <Link href={url} target="_blank" rel="noopener noreferrer">
                         <Image
                             src={urlToImage}
