@@ -3,15 +3,18 @@ import Categories from '@/components/Categories';
 import NewsList from '@/components/NewsList';
 import { NewsTopHeadLine } from '@/types/NewsTopHeadLine';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
+import { useCallback, useState } from 'react';
 
 const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     const { newsTopHeadLines } = props;
+    const [category, setCategory] = useState('all');
+    const onSelectCategory = useCallback((category:string) => setCategory(category), []);
 
     return (
         <div>
             {newsTopHeadLines && (
                 <>
-                    <Categories />
+                    <Categories category={category} onSelectCategory={onSelectCategory} />
                     <NewsList
                         status={newsTopHeadLines.status}
                         totalResults={newsTopHeadLines.totalResults}
