@@ -29,12 +29,23 @@ const categories = [
     },
 ];
 
-const Categories = () => {
+interface Props {
+    category: string;
+    onSelectCategory: void;
+}
+
+const Categories = ({ category }: Props) => {
+    const categoryActiveClass =
+        'font-semibold border-2 border-solid border-cyan-500 hover:text-cyan-500';
+
     return (
         <div className="flex p-4 w-[768px] my-0 mx-auto md:w-full overflow-x-auto space-x-4">
             {categories.map((c) => (
                 <div
-                    className="text-lg whitespace-pre text-inherit pb-1 hover:text-cyan-500"
+                    className={`text-lg whitespace-pre text-inherit pb-1 hover:text-cyan-500 md:text-base ${
+                        category === c.name && categoryActiveClass
+                    }`}
+                    // onClick={() => onSelectCategory(c.name)}
                     key={c.name}
                 >
                     {c.text}
