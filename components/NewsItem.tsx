@@ -7,7 +7,7 @@ const NewsItem = (article: Article) => {
     const { title, description, url, urlToImage } = article;
 
     return (
-        <div className="flex mt-10 md:mt-7">
+        <div className="flex mt-10 md:mt-7 md:w-fit">
             {urlToImage && (
                 <div className="mr-1 relative min-w-[160px] h-[100px] md:min-w-[120px]">
                     <Link href={url} target="_blank" rel="noopener noreferrer">
@@ -21,7 +21,7 @@ const NewsItem = (article: Article) => {
                     </Link>
                 </div>
             )}
-            <div className="ml-2">
+            <div className="ml-2 md:max-w-[300px]">
                 <Link
                     href={url}
                     target="_blank"
