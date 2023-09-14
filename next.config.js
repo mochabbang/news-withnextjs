@@ -5,7 +5,6 @@ const nextConfig = {
         loader: 'default',
         loaderFile: './utilities/ImageLoader.ts',
     },
-
     reactStrictMode: true,
 };
 

@@ -4,32 +4,30 @@ import NewsList from '@/components/NewsList';
 import { Article } from '@/types/Article';
 import { NewsTopHeadLine } from '@/types/NewsTopHeadLine';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-import { useCallback, useEffect, useState } from 'react';
+import { env } from 'process';
+import { useCallback, useState } from 'react';
 
 const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     const { newsTopHeadLines } = props;
     const [category, setCategory] = useState('all');
-    const [articles, setArticles] = useState<Article[]>([]);
-    const onSelectCategory = useCallback(
-        (category: string) => setCategory(category),
-        [],
+    const [articles, setArticles] = useState<Article[]>(
+        newsTopHeadLines.articles,
     );
 
-    useEffect(() => {
-        if (newsTopHeadLines && newsTopHeadLines.articles.length > 0) {
-            setArticles(newsTopHeadLines.articles);
-        }
+    const onSelectCategory = useCallback((category: string) => {
+        setCategory(category);
+        getCategoryArticles(category);
     }, []);
 
-    // useEffect(() => {
-    //     console.log('execute');
+    const getCategoryArticles = async (category: string) => {
+        const data = await GetNewsTopHeadLines(category);
 
-    //     getCategoryData();
+        if (!data) {
+            return;
+        }
 
-    //     async function getCategoryData() {
-    //         return await GetNewsTopHeadLines();
-    //     }
-    // }, [setCategory]);
+        setArticles(data.articles);
+    };
 
     return (
         <div>
@@ -49,7 +47,7 @@ const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 export const getStaticProps: GetStaticProps<{
     newsTopHeadLines: NewsTopHeadLine;
 }> = async () => {
-    const newsTopHeadLines = await GetNewsTopHeadLines();
+    const newsTopHeadLines = await GetNewsTopHeadLines('');
 
     return {
         props: {
