@@ -2,7 +2,7 @@
 const nextConfig = {
     images: {
         domains: ['*'],
-        loader: 'default',
+        loader: 'custom',
         loaderFile: './utilities/ImageLoader.ts',
     },
     reactStrictMode: true,

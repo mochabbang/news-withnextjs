@@ -16,7 +16,7 @@ const NewsItem = (article: Article) => {
                             loader={imageLoader}
                             alt="thumname"
                             fill
-                            style={{ objectFit: 'cover' }}
+                            style={{ objectFit: 'contain' }}
                         />
                     </Link>
                 </div>
