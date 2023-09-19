@@ -36,13 +36,13 @@ interface Props {
 
 const Categories = ({ category, onSelectCategory }: Props) => {
     const categoryActiveClass =
-        'font-semibold border-b-2 border-b-solid border-b-cyan-600 text-cyan-600 hover:text-cyan-500';
+        'text-cyan-600 font-semibold border-b-2 border-b-solid border-b-cyan-600 hover:text-cyan-500';
 
     return (
         <div className="flex p-4 w-[768px] my-0 mx-auto md:w-full overflow-x-auto space-x-4">
             {categories.map((c) => (
                 <div
-                    className={`text-lg whitespace-pre text-inherit font-semibold pb-1 hover:text-cyan-500 md:text-base ${
+                    className={`text-lg whitespace-pre font-semibold pb-1 hover:text-cyan-500 md:text-base ${
                         category === c.name && categoryActiveClass
                     }`}
                     onClick={() => onSelectCategory(c.name)}
