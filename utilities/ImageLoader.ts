@@ -1,3 +1,11 @@
-export default function imageLoader({ src }: { src: string }) {
-    return `${src}`;
+export default function imageLoader({
+    src,
+    width,
+    quality,
+}: {
+    src: string;
+    width: number;
+    quality: number;
+}) {
+    return `${src}?w=${width}&q=${quality || 75}`;
 }
