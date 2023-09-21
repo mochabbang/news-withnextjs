@@ -10,10 +10,11 @@ const NewsItem = (article: Article) => {
         <div className="flex mt-10 md:mt-7 md:w-fit">
             {urlToImage && (
                 <Link href={url} target="_blank" rel="noopener noreferrer">
-                    <div className="mr-1 relative min-w-[120px] h-[100px] md:min-w-[120px]">
+                    <div className="mr-1 relative w-[120px] h-[100px]">
                         <Image
                             src={urlToImage}
                             alt="thumname"
+                            unoptimized
                             fill
                             style={{ objectFit: 'contain' }}
                             sizes="(max-width:768px) 5vw"
@@ -21,17 +22,17 @@ const NewsItem = (article: Article) => {
                     </div>
                 </Link>
             )}
-            <div className="ml-2 md:mx-2 md:truncate md:max-w-[300px]">
+            <div className="ml-2 md:mx-2 md:max-w-[300px]">
                 <Link
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-black text-xl font-bold md:text-base"
+                    className="text-black text-base"
                 >
                     {title}
                 </Link>
-                <p className="m-0 leading-none mt-2 whitespace-normal text-xs">
-                    {description}
+                <p className="m-0 leading-none mt-2 text-gray-400 text-xs">
+                    {description && description.substring(0, 50) + '...'}
                 </p>
             </div>
         </div>

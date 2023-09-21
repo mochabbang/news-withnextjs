@@ -9,7 +9,7 @@ const NewsList = (props: Props) => {
     const { articles } = props;
 
     return (
-        <div className="box-border pb-12 my-0 mx-auto mt-8 w-[768px] px-4 md:w-full md:px-8 ">
+        <div className="box-border pb-12 my-0 mx-auto mt-2 w-[768px] px-4 md:w-full md:px-8 ">
             {articles &&
                 articles.map(
                     (article): JSX.Element => (
