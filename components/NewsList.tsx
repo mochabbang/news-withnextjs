@@ -9,7 +9,7 @@ const NewsList = (props: Props) => {
     const { articles } = props;
 
     return (
-        <div className="box-border pb-6 my-0 mx-auto mt-1 w-[768px] px-4 md:w-full md:px-8 ">
+        <div className="box-border pb-6 my-0 mx-auto mt-1 w-[768px] px-4 md:w-full md:px-8 bg-gray-300 rounded-[4px]">
             {articles &&
                 articles.map(
                     (article): JSX.Element => (
