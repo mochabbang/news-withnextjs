@@ -17,6 +17,7 @@ const NewsItem = (article: Article) => {
                             fill
                             style={{ objectFit: 'fill' }}
                             sizes="(max-width:768px) 5vw"
+                            className="rounded-[4px]"
                         />
                     </div>
                 </Link>
