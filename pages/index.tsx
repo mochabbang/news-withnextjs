@@ -14,6 +14,8 @@ const index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         newsTopHeadLines.articles,
     );
 
+    console.log(newsTopHeadLines);
+
     const onSelectCategory = useCallback((category: string) => {
         setCategory(category);
         getCategoryArticles(category);

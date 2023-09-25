@@ -39,7 +39,7 @@ const Categories = ({ category, onSelectCategory }: Props) => {
         'text-cyan-600 font-semibold border-b-2 border-b-solid border-b-cyan-600 hover:text-cyan-500';
 
     return (
-        <div className="flex p-4 w-[768px] my-0 mx-auto md:w-full overflow-x-auto space-x-4">
+        <div className="flex p-4 w-[768px] my-0 mx-auto md:w-full overflow-x-auto space-x-4 md:p-2">
             {categories.map((c) => (
                 <div
                     className={`text-lg whitespace-pre font-semibold pb-1 hover:text-cyan-500 md:text-base ${
