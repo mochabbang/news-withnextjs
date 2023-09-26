@@ -9,9 +9,9 @@ module.exports = {
         './src/**/*.{js,ts,jsx,tsx,mdx}',
     ],
     theme: {
-        screens: {            
-          'md': {'max' : '768px'}  
-          // -> @media (max-width: 768px) {}
+        screens: {
+            md: { max: '768px' },
+            // -> @media (max-width: 768px) {}
         },
         extend: {},
     },
