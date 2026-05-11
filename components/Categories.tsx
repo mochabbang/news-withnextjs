@@ -1,58 +1,40 @@
+import { cn } from '@/lib/utils';
+
 const categories = [
-    {
-        name: 'all',
-        text: '전체보기',
-    },
-    {
-        name: 'business',
-        text: '비즈니스',
-    },
-    {
-        name: 'entertainment',
-        text: '엔터테인먼트',
-    },
-    {
-        name: 'health',
-        text: '건강',
-    },
-    {
-        name: 'science',
-        text: '과학',
-    },
-    {
-        name: 'sports',
-        text: '스포츠',
-    },
-    {
-        name: 'technology',
-        text: '기술',
-    },
+    { name: 'all', text: '전체' },
+    { name: 'business', text: '비즈니스' },
+    { name: 'entertainment', text: '엔터테인먼트' },
+    { name: 'health', text: '건강' },
+    { name: 'science', text: '과학' },
+    { name: 'sports', text: '스포츠' },
+    { name: 'technology', text: '기술' },
 ];
 
 interface Props {
     category: string;
-    onSelectCategory: any;
+    onSelectCategory: (category: string) => void;
 }
 
-const Categories = ({ category, onSelectCategory }: Props) => {
-    const categoryActiveClass =
-        'text-cyan-600 font-semibold border-b-2 border-b-solid border-b-cyan-600 hover:text-cyan-500';
-
+export default function Categories({ category, onSelectCategory }: Props) {
     return (
-        <div className="flex p-4 w-[768px] my-0 mx-auto md:w-full overflow-x-auto space-x-4 md:p-2">
+        <div className="flex overflow-x-auto gap-1 py-3 scrollbar-hide">
             {categories.map((c) => (
-                <div
-                    className={`text-lg whitespace-pre font-semibold pb-1 hover:text-cyan-500 md:text-base ${
-                        category === c.name && categoryActiveClass
-                    }`}
-                    onClick={() => onSelectCategory(c.name)}
+                <button
                     key={c.name}
+                    type="button"
+                    onClick={() => onSelectCategory(c.name)}
+                    aria-pressed={category === c.name}
+                    className={cn(
+                        'whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors min-h-[36px]',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        category === c.name
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-secondary/70',
+                    )}
                 >
                     {c.text}
-                </div>
+                </button>
             ))}
         </div>
     );
-};
-
-export default Categories;
+}

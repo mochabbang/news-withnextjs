@@ -1,44 +1,70 @@
-import { Article } from '@/types/Article';
-import Image from 'next/image';
 import Link from 'next/link';
+import { Article } from '@/types/Article';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import NewsImage from './NewsImage';
+import NewsSummary from './NewsSummary';
+import RelativeTime from './RelativeTime';
 
-const NewsItem = (article: Article) => {
-    const { title, description, url, urlToImage, publishedAt } = article;
+export default function NewsItem(article: Article) {
+    const {
+        title,
+        description,
+        url,
+        urlToImage,
+        publishedAt,
+        source,
+        originalTitle,
+        translated,
+    } = article;
 
     return (
-        <div className="flex my-2 bg-white rounded-[4px] w-full">
-            {urlToImage && (
-                <Link href={url} target="_blank" rel="noopener noreferrer">
-                    <div className="m-1 relative w-[130px] h-[100px] md:min-w-[100px] h-[70px]">
-                        <Image
-                            src={urlToImage}
-                            alt="thumname"
-                            unoptimized
-                            fill
-                            style={{ objectFit: 'fill' }}
-                            className="rounded-[4px]"
-                        />
-                    </div>
-                </Link>
-            )}
-            <div className="m-2 md:max-w-[300px] text-sm/[13px] md:text-xs/[13px]">
-                <div className="font-semibold">
+        <Card className="flex overflow-hidden hover:shadow-md transition-shadow">
+            <Link
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`기사 읽기: ${title}`}
+                className="relative w-32 sm:w-40 shrink-0 aspect-video"
+            >
+                <NewsImage src={urlToImage} alt={title} />
+            </Link>
+            <CardContent className="flex-1 p-3 flex flex-col justify-between min-w-0">
+                <div>
                     <Link
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-black"
+                        className="hover:underline"
                     >
-                        {title}
+                        <h3 className="font-semibold text-sm leading-snug line-clamp-2 text-foreground">
+                            {title}
+                        </h3>
                     </Link>
+                    {description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                            {description}
+                        </p>
+                    )}
+                    {translated && originalTitle && originalTitle !== title && (
+                        <p className="text-xs text-muted-foreground/80 line-clamp-1 mt-1">
+                            {originalTitle}
+                        </p>
+                    )}
+                    <NewsSummary title={title} description={description} />
                 </div>
-                <p className="m-0 leading-none mt-2 text-gray-500 leading-4">
-                    {description && description.substring(0, 100) + '...'}
-                </p>
-                <div className="mt-2 text-xs">게시일 : {publishedAt}</div>
-            </div>
-        </div>
+                <div className="flex items-center justify-between mt-2 gap-2">
+                    {source?.name && (
+                        <Badge variant="secondary" className="text-xs shrink-0">
+                            {source.name}
+                        </Badge>
+                    )}
+                    <RelativeTime
+                        iso={publishedAt}
+                        className="text-xs text-muted-foreground ml-auto"
+                    />
+                </div>
+            </CardContent>
+        </Card>
     );
-};
-
-export default NewsItem;
+}

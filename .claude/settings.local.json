@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx shadcn-ui@latest init --yes)",
+      "Bash(npx shadcn@latest init --yes)",
+      "Bash(npm run *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git --version)",
+      "Bash(git fsck *)",
+      "Bash(git diff-files *)",
+      "Bash(git update-index *)",
+      "Bash(rm -f .git/index.lock)",
+      "Bash(git --no-optional-locks status)",
+      "Bash(GIT_TRACE=1 git status)",
+      "Bash(GIT_TRACE_SETUP=1 GIT_TRACE_REFS=1 git status)",
+      "Bash(cp .git/packed-refs .git/packed-refs.bak)",
+      "Bash(rm .git/packed-refs)",
+      "Bash(git update-ref *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git rm *)",
+      "Bash(git check-ignore *)",
+      "Bash(git push *)",
+      "Bash(vercel --version)"
+    ]
+  }
+}
