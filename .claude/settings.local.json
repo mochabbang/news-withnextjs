@@ -24,7 +24,12 @@
       "Bash(git push *)",
       "Bash(vercel --version)",
       "Bash(git ls-tree *)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(node *)",
+      "Bash(npm ls *)",
+      "Bash(npm test *)"
     ]
   }
 }
