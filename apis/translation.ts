@@ -3,6 +3,39 @@ import { NormalizedArticle } from './normalize';
 
 type TranslateProvider = 'none' | 'mymemory' | 'libretranslate';
 
+const CACHE_MAX = 500;
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+type CacheEntry = { value: string; createdAt: number };
+
+const cache = new Map<string, CacheEntry>();
+
+function cacheKey(text: string, sourceLanguage: string): string {
+    return `${sourceLanguage}::${text}`;
+}
+
+function readCache(key: string): string | null {
+    const entry = cache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.createdAt > CACHE_TTL_MS) {
+        cache.delete(key);
+        return null;
+    }
+    return entry.value;
+}
+
+function writeCache(key: string, value: string): void {
+    if (cache.size >= CACHE_MAX) {
+        const oldest = cache.keys().next().value;
+        if (oldest) cache.delete(oldest);
+    }
+    cache.set(key, { value, createdAt: Date.now() });
+}
+
+export function __resetTranslationCacheForTests(): void {
+    cache.clear();
+}
+
 function getTranslateProvider(): TranslateProvider {
     const configured = process.env.NEWS_TRANSLATE_PROVIDER as TranslateProvider | undefined;
     if (configured === 'mymemory' || configured === 'libretranslate' || configured === 'none') {
@@ -52,18 +85,28 @@ async function translateWithLibreTranslate(
     return r.data.translatedText ?? text;
 }
 
-async function translateText(text: string | null, sourceLanguage: string): Promise<string | null> {
-    if (!text?.trim() || sourceLanguage === 'ko') return text;
+export async function translateArticleText<T extends string | null>(
+    text: T,
+    sourceLanguage: string,
+): Promise<T> {
+    if (text === null) return text;
+    if (!text.trim() || sourceLanguage === 'ko') return text;
 
     const provider = getTranslateProvider();
     if (provider === 'none') return text;
 
-    try {
-        if (provider === 'libretranslate') {
-            return await translateWithLibreTranslate(text, sourceLanguage);
-        }
+    const key = cacheKey(text, sourceLanguage);
+    const cached = readCache(key);
+    if (cached !== null) return cached as T;
 
-        return await translateWithMyMemory(text, sourceLanguage);
+    try {
+        const translated =
+            provider === 'libretranslate'
+                ? await translateWithLibreTranslate(text, sourceLanguage)
+                : await translateWithMyMemory(text, sourceLanguage);
+
+        writeCache(key, translated);
+        return translated as T;
     } catch {
         return text;
     }
@@ -79,8 +122,8 @@ export async function translateArticlesToKorean(
     const translated: NormalizedArticle[] = [];
 
     for (const article of articles.slice(0, maxArticles)) {
-        const title = await translateText(article.title, sourceLanguage);
-        const description = await translateText(article.description, sourceLanguage);
+        const title = await translateArticleText(article.title, sourceLanguage);
+        const description = await translateArticleText(article.description, sourceLanguage);
 
         translated.push({
             ...article,

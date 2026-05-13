@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import NewsItem from './NewsItem';
 import { Article } from '@/types/Article';
+import { encodeArticleId } from '@/lib/articleId';
+import { loadArticleSnapshot } from '@/lib/articleSession';
 
 function makeArticle(overrides: Partial<Article> = {}): Article {
     return {
@@ -16,6 +18,10 @@ function makeArticle(overrides: Partial<Article> = {}): Article {
     };
 }
 
+beforeEach(() => {
+    sessionStorage.clear();
+});
+
 describe('NewsItem', () => {
     it('renders title and description', () => {
         render(<NewsItem {...makeArticle()} />);
@@ -23,16 +29,53 @@ describe('NewsItem', () => {
         expect(screen.getByText('테스트 기사 설명')).toBeInTheDocument();
     });
 
-    it('renders external links with target=_blank and rel="noopener noreferrer"', () => {
-        render(<NewsItem {...makeArticle()} />);
+    it('renders internal links to /articles/[id] (not external, same tab)', () => {
+        const article = makeArticle();
+        const id = encodeArticleId(article.url);
+        render(<NewsItem {...article} />);
+
         const links = screen.getAllByRole('link');
         expect(links.length).toBeGreaterThan(0);
         for (const link of links) {
-            expect(link).toHaveAttribute('href', 'https://example.com/article');
-            expect(link).toHaveAttribute('target', '_blank');
-            expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
-            expect(link).toHaveAttribute('rel', expect.stringContaining('noreferrer'));
+            expect(link).toHaveAttribute('href', `/articles/${id}`);
+            expect(link).not.toHaveAttribute('target', '_blank');
         }
+    });
+
+    it('saves an article snapshot to sessionStorage on click', () => {
+        const article = makeArticle();
+        const id = encodeArticleId(article.url);
+        render(<NewsItem {...article} country="kr" />);
+
+        fireEvent.click(screen.getAllByRole('link')[0]);
+
+        const snap = loadArticleSnapshot(id);
+        expect(snap).not.toBeNull();
+        expect(snap).toMatchObject({
+            url: article.url,
+            title: article.title,
+            description: article.description,
+            sourceName: 'Example News',
+            sourceLanguage: 'ko',
+        });
+    });
+
+    it('encodes sourceLanguage based on country prop', () => {
+        const article = makeArticle();
+        const id = encodeArticleId(article.url);
+        render(<NewsItem {...article} country="jp" />);
+
+        fireEvent.click(screen.getAllByRole('link')[0]);
+        expect(loadArticleSnapshot(id)?.sourceLanguage).toBe('ja');
+    });
+
+    it('defaults country to "kr" when not provided', () => {
+        const article = makeArticle();
+        const id = encodeArticleId(article.url);
+        render(<NewsItem {...article} />);
+
+        fireEvent.click(screen.getAllByRole('link')[0]);
+        expect(loadArticleSnapshot(id)?.sourceLanguage).toBe('ko');
     });
 
     it('uses article title as image alt when image url is valid', () => {
@@ -91,7 +134,6 @@ describe('NewsItem', () => {
                 })}
             />,
         );
-        // Title rendered once in h3 only, not also as the originalTitle line
         expect(screen.getAllByText('Same')).toHaveLength(1);
     });
 

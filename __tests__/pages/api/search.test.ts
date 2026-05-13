@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import handler from './search';
+import handler from '@/pages/api/search';
 import * as newsService from '@/apis/newsService';
 import { Article } from '@/types/Article';
 

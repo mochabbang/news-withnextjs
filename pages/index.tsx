@@ -77,7 +77,7 @@ export default function Home({
                     {error}
                 </div>
             )}
-            <NewsList articles={articles} loading={loading} />
+            <NewsList articles={articles} loading={loading} country={country} />
         </>
     );
 }

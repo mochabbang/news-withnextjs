@@ -5,8 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import NewsImage from './NewsImage';
 import NewsSummary from './NewsSummary';
 import RelativeTime from './RelativeTime';
+import { encodeArticleId } from '@/lib/articleId';
+import { saveArticleSnapshot } from '@/lib/articleSession';
+import { getCountryLanguage } from '@/apis/countries';
 
-export default function NewsItem(article: Article) {
+type Props = Article & {
+    country?: string;
+};
+
+export default function NewsItem(props: Props) {
     const {
         title,
         description,
@@ -14,16 +21,33 @@ export default function NewsItem(article: Article) {
         urlToImage,
         publishedAt,
         source,
+        author,
         originalTitle,
         translated,
-    } = article;
+        country,
+    } = props;
+
+    const id = encodeArticleId(url);
+    const href = `/articles/${id}`;
+
+    const handleNavigate = () => {
+        saveArticleSnapshot(id, {
+            url,
+            title,
+            description: description ?? null,
+            urlToImage: urlToImage ?? null,
+            publishedAt,
+            author: author ?? null,
+            sourceName: source?.name ?? '',
+            sourceLanguage: getCountryLanguage(country ?? 'kr'),
+        });
+    };
 
     return (
         <Card className="flex overflow-hidden hover:shadow-md transition-shadow">
             <Link
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={href}
+                onClick={handleNavigate}
                 aria-label={`기사 읽기: ${title}`}
                 className="relative w-32 sm:w-40 shrink-0 aspect-video"
             >
@@ -32,9 +56,8 @@ export default function NewsItem(article: Article) {
             <CardContent className="flex-1 p-3 flex flex-col justify-between min-w-0">
                 <div>
                     <Link
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={href}
+                        onClick={handleNavigate}
                         className="hover:underline"
                     >
                         <h3 className="font-semibold text-sm leading-snug line-clamp-2 text-foreground">

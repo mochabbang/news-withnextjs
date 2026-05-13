@@ -46,12 +46,18 @@ function writeCache(key: string, summary: string): void {
     cache.set(key, { summary, createdAt: Date.now() });
 }
 
+export function __resetSummarizeCacheForTests(): void {
+    cache.clear();
+    client = null;
+}
+
 const SYSTEM_PROMPT =
     '당신은 한국어 뉴스 요약 전문가입니다. 입력된 기사 제목과 요약문을 바탕으로 핵심을 한 문장(60자 이내)으로 요약합니다. 추측하지 말고 입력에 명시된 사실만 사용하세요. 불필요한 인사말이나 설명 없이 요약 문장만 출력하세요.';
 
 export type SummarizeInput = {
     title: string;
     description?: string | null;
+    language?: string;
 };
 
 export async function summarizeArticle(input: SummarizeInput): Promise<string> {
@@ -59,7 +65,8 @@ export async function summarizeArticle(input: SummarizeInput): Promise<string> {
     if (!title) throw new Error('title required');
 
     const description = (input.description ?? '').trim();
-    const cacheKey = hashKey(`${title}|${description}`);
+    const language = input.language ?? 'default';
+    const cacheKey = hashKey(`${language}|${title}|${description}`);
     const cached = readCache(cacheKey);
     if (cached) return cached;
 

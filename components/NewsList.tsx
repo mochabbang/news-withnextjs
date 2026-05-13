@@ -5,9 +5,10 @@ import NewsItemSkeleton from './NewsItemSkeleton';
 interface Props {
     articles: Article[];
     loading?: boolean;
+    country?: string;
 }
 
-export default function NewsList({ articles, loading = false }: Props) {
+export default function NewsList({ articles, loading = false, country }: Props) {
     if (loading) {
         return (
             <div className="flex flex-col gap-3">
@@ -29,7 +30,7 @@ export default function NewsList({ articles, loading = false }: Props) {
     return (
         <div className="flex flex-col gap-3">
             {articles.map((article) => (
-                <NewsItem key={article.url} {...article} />
+                <NewsItem key={article.url} {...article} country={country} />
             ))}
         </div>
     );

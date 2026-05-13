@@ -38,7 +38,7 @@ export default function SearchPage({
                     {error}
                 </div>
             )}
-            <NewsList articles={articles} />
+            <NewsList articles={articles} country={country} />
         </>
     );
 }
