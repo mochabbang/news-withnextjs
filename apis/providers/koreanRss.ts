@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import { cleanHtmlText, safeIsoDate, sourceNameFromUrl } from '@/utilities/text';
+import {
+    cleanHtmlText,
+    safeIsoDate,
+    sourceNameFromUrl,
+} from '@/utilities/text';
 import { NormalizedArticle } from '../normalize';
 import {
     KoreanRssSource,
@@ -11,6 +15,8 @@ import {
 
 const USER_AGENT = 'mochabbang-news/0.1 (+https://github.com/) RSS-aggregator';
 const FETCH_TIMEOUT_MS = 8000;
+const IMAGE_FETCH_TIMEOUT_MS = 3000;
+const IMAGE_ENRICH_CONCURRENCY = 5;
 const PER_FEED_LIMIT = 15;
 const TOP_LIMIT = 30;
 const SEARCH_LIMIT = 20;
@@ -29,6 +35,7 @@ type RawItem = {
     pubDate?: unknown;
     author?: unknown;
     'dc:creator'?: unknown;
+    'content:encoded'?: unknown;
     'media:content'?: unknown;
     'media:thumbnail'?: unknown;
     enclosure?: unknown;
@@ -38,7 +45,8 @@ type RawItem = {
 function asString(value: unknown): string {
     if (value == null) return '';
     if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (typeof value === 'number' || typeof value === 'boolean')
+        return String(value);
     if (typeof value === 'object') {
         const obj = value as Record<string, unknown>;
         if (typeof obj.__cdata === 'string') return obj.__cdata;
@@ -47,14 +55,23 @@ function asString(value: unknown): string {
     return '';
 }
 
+function normalizeImageUrl(src: string | null | undefined): string | null {
+    if (!src) return null;
+    const trimmed = src.trim().replace(/&amp;/g, '&');
+    if (trimmed.startsWith('//')) return `https:${trimmed}`;
+    return /^https?:\/\//i.test(trimmed) ? trimmed : null;
+}
+
 function pickAttrUrl(value: unknown): string | null {
     if (!value) return null;
     const list = Array.isArray(value) ? value : [value];
     for (const entry of list) {
         if (typeof entry === 'object' && entry !== null) {
             const obj = entry as Record<string, unknown>;
-            const url = obj['@_url'];
-            if (typeof url === 'string' && url.startsWith('http')) return url;
+            const url = normalizeImageUrl(
+                asString(obj['@_url'] ?? obj['@_href']),
+            );
+            if (url) return url;
         }
     }
     return null;
@@ -66,13 +83,9 @@ function pickEnclosureImage(value: unknown): string | null {
     for (const entry of list) {
         if (typeof entry === 'object' && entry !== null) {
             const obj = entry as Record<string, unknown>;
-            const url = obj['@_url'];
-            const type = obj['@_type'];
-            if (
-                typeof url === 'string' &&
-                url.startsWith('http') &&
-                (typeof type !== 'string' || type.startsWith('image'))
-            ) {
+            const url = normalizeImageUrl(asString(obj['@_url']));
+            const type = asString(obj['@_type']);
+            if (url && (!type || type.startsWith('image'))) {
                 return url;
             }
         }
@@ -83,8 +96,22 @@ function pickEnclosureImage(value: unknown): string | null {
 function extractImageFromHtml(html: string): string | null {
     const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (!match) return null;
-    const src = match[1];
-    return src.startsWith('http') ? src : null;
+    return normalizeImageUrl(match[1]);
+}
+
+export function extractMetaImageFromHtml(html: string): string | null {
+    const patterns = [
+        /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image|twitter:image:src)["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+        /<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["'](?:og:image|twitter:image|twitter:image:src)["'][^>]*>/i,
+    ];
+
+    for (const pattern of patterns) {
+        const match = html.match(pattern);
+        const url = normalizeImageUrl(match?.[1]);
+        if (url) return url;
+    }
+
+    return null;
 }
 
 function extractImage(item: RawItem): string | null {
@@ -92,8 +119,60 @@ function extractImage(item: RawItem): string | null {
         pickAttrUrl(item['media:content']) ||
         pickAttrUrl(item['media:thumbnail']) ||
         pickEnclosureImage(item.enclosure) ||
-        extractImageFromHtml(asString(item.description))
+        extractImageFromHtml(asString(item.description)) ||
+        extractImageFromHtml(asString(item['content:encoded']))
     );
+}
+
+async function fetchArticleImage(url: string): Promise<string | null> {
+    try {
+        const response = await axios.get<string>(url, {
+            timeout: IMAGE_FETCH_TIMEOUT_MS,
+            responseType: 'text',
+            maxRedirects: 3,
+            headers: {
+                'User-Agent': USER_AGENT,
+                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            },
+        });
+
+        return (
+            extractMetaImageFromHtml(response.data) ||
+            extractImageFromHtml(response.data)
+        );
+    } catch {
+        return null;
+    }
+}
+
+async function enrichMissingImages(
+    articles: NormalizedArticle[],
+): Promise<NormalizedArticle[]> {
+    const result = [...articles];
+    let nextIndex = 0;
+
+    async function worker() {
+        while (nextIndex < result.length) {
+            const index = nextIndex;
+            nextIndex += 1;
+            const article = result[index];
+            if (article.urlToImage) continue;
+
+            const image = await fetchArticleImage(article.url);
+            if (image) {
+                result[index] = { ...article, urlToImage: image };
+            }
+        }
+    }
+
+    await Promise.all(
+        Array.from(
+            { length: Math.min(IMAGE_ENRICH_CONCURRENCY, result.length) },
+            () => worker(),
+        ),
+    );
+
+    return result;
 }
 
 function extractItems(parsed: unknown): RawItem[] {
@@ -116,9 +195,11 @@ function normalizeItems(
             const url = asString(item.link).trim();
             if (!title || !url.startsWith('http')) return null;
 
-            const description = cleanHtmlText(asString(item.description)) || null;
+            const description =
+                cleanHtmlText(asString(item.description)) || null;
             const author =
-                cleanHtmlText(asString(item['dc:creator'] ?? item.author)) || null;
+                cleanHtmlText(asString(item['dc:creator'] ?? item.author)) ||
+                null;
 
             return {
                 author,
@@ -200,7 +281,8 @@ export async function fetchKoreanRss(
     if (articles.length === 0) {
         throw new Error('Korean RSS returned no articles');
     }
-    return dedupeAndSort(articles).slice(0, TOP_LIMIT);
+    const topArticles = dedupeAndSort(articles).slice(0, TOP_LIMIT);
+    return enrichMissingImages(topArticles);
 }
 
 export async function searchKoreanRss(
@@ -220,5 +302,6 @@ export async function searchKoreanRss(
     if (matched.length === 0) {
         throw new Error('Korean RSS search returned no matches');
     }
-    return dedupeAndSort(matched).slice(0, SEARCH_LIMIT);
+    const topMatches = dedupeAndSort(matched).slice(0, SEARCH_LIMIT);
+    return enrichMissingImages(topMatches);
 }
