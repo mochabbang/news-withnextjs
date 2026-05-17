@@ -7,7 +7,12 @@ describe('normalizeNewsCountry', () => {
     });
 
     it('takes the first element of an array input', () => {
-        expect(normalizeNewsCountry(['jp', 'us'])).toBe('jp');
+        expect(normalizeNewsCountry(['gb', 'us'])).toBe('gb');
+    });
+
+    it('does not allow Japan lookup anymore', () => {
+        expect(normalizeNewsCountry('jp')).toBe('kr');
+        expect(NEWS_COUNTRIES.some((c) => c.code === 'jp')).toBe(false);
     });
 
     it('falls back to "kr" for undefined, unknown, or empty input', () => {
@@ -20,7 +25,6 @@ describe('normalizeNewsCountry', () => {
 describe('getCountryLanguage', () => {
     it('returns the language for known country codes', () => {
         expect(getCountryLanguage('kr')).toBe('ko');
-        expect(getCountryLanguage('jp')).toBe('ja');
         expect(getCountryLanguage('cn')).toBe('zh');
         expect(getCountryLanguage('us')).toBe('en');
     });

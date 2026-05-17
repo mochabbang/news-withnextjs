@@ -63,6 +63,41 @@ export const KOREAN_RSS_SOURCES: KoreanRssSource[] = [
             technology: 'https://www.hankyung.com/feed/it',
         },
     },
+    {
+        id: 'donga',
+        name: '동아일보',
+        feeds: {
+            all: 'https://rss.donga.com/total.xml',
+        },
+    },
+    {
+        id: 'sbs',
+        name: 'SBS 뉴스',
+        feeds: {
+            all: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=03',
+            business: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=02',
+            entertainment: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=14',
+            health: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=08',
+            science: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=08',
+            sports: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=09',
+        },
+    },
+    {
+        id: 'jtbc',
+        name: 'JTBC',
+        feeds: {
+            all: 'https://fs.jtbc.co.kr/RSS/newsflash.xml',
+        },
+    },
+    {
+        id: 'mk',
+        name: '매일경제',
+        feeds: {
+            all: 'https://www.mk.co.kr/rss/30000001/',
+            business: 'https://www.mk.co.kr/rss/30100041/',
+            technology: 'https://www.mk.co.kr/rss/30000019/',
+        },
+    },
 ];
 
 export function resolveFeedsForCategory(
