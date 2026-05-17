@@ -83,16 +83,14 @@ describe('NewsItem', () => {
         expect(screen.getByAltText('테스트 기사 제목')).toBeInTheDocument();
     });
 
-    it('keeps the thumbnail container at a fixed size to avoid layout shift', () => {
+    it('keeps the thumbnail container at the original responsive aspect size', () => {
         render(<NewsItem {...makeArticle()} />);
 
         expect(screen.getAllByRole('link')[0]).toHaveClass(
-            'h-[72px]',
             'w-32',
-            'sm:h-[90px]',
             'sm:w-40',
             'shrink-0',
-            'overflow-hidden',
+            'aspect-video',
         );
     });
 

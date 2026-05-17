@@ -86,14 +86,28 @@ async function translateIfNeeded(
     return translateArticlesToKorean(articles, getCountryLanguage(country));
 }
 
+function slicePage<T>(items: T[], page: number, pageSize: number): T[] {
+    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const safePageSize =
+        Number.isFinite(pageSize) && pageSize > 0
+            ? Math.min(Math.floor(pageSize), 30)
+            : 30;
+    const start = (safePage - 1) * safePageSize;
+    return items.slice(start, start + safePageSize);
+}
+
 export async function getTopArticles({
     category = 'all',
     country = 'kr',
     translate = false,
+    page = 1,
+    pageSize = 30,
 }: {
     category?: string;
     country?: string | string[];
     translate?: boolean;
+    page?: number;
+    pageSize?: number;
 }): Promise<Article[]> {
     const normalizedCountry = normalizeNewsCountry(country);
     const articles =
@@ -101,17 +115,25 @@ export async function getTopArticles({
             ? await fetchKoreanTopNews(category)
             : await fetchInternationalTopNews(category, normalizedCountry);
 
-    return translateIfNeeded(articles.slice(0, 30), normalizedCountry, translate);
+    return translateIfNeeded(
+        slicePage(articles, page, pageSize),
+        normalizedCountry,
+        translate,
+    );
 }
 
 export async function searchArticles({
     query,
     country = 'kr',
     translate = false,
+    page = 1,
+    pageSize = 20,
 }: {
     query: string;
     country?: string | string[];
     translate?: boolean;
+    page?: number;
+    pageSize?: number;
 }): Promise<Article[]> {
     const normalizedCountry = normalizeNewsCountry(country);
     const articles =
@@ -119,7 +141,11 @@ export async function searchArticles({
             ? await searchKoreanNews(query)
             : await searchInternationalNews(query, normalizedCountry);
 
-    return translateIfNeeded(articles.slice(0, 20), normalizedCountry, translate);
+    return translateIfNeeded(
+        slicePage(articles, page, pageSize),
+        normalizedCountry,
+        translate,
+    );
 }
 
 export function articlesToTopHeadline(articles: Article[]) {

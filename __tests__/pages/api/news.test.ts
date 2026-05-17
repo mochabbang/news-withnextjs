@@ -59,7 +59,12 @@ describe('GET /api/news', () => {
         await handler(req, res as NextApiResponse);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body).toEqual({ articles });
+        expect(res.body).toEqual({
+            articles,
+            page: 1,
+            pageSize: 15,
+            hasMore: false,
+        });
     });
 
     it('defaults category to "all" when missing or empty', async () => {
@@ -88,7 +93,22 @@ describe('GET /api/news', () => {
             category: 'all',
             country: 'us',
             translate: true,
+            page: 1,
+            pageSize: 15,
         });
+    });
+
+    it('passes page and pageSize through with safe defaults', async () => {
+        mockedGetTop.mockResolvedValueOnce([]);
+
+        await handler(
+            makeReq({ page: '2', pageSize: '10' }),
+            makeRes() as NextApiResponse,
+        );
+
+        expect(mockedGetTop).toHaveBeenCalledWith(
+            expect.objectContaining({ page: 2, pageSize: 10 }),
+        );
     });
 
     it('treats translate="1" as true and other values as false', async () => {
@@ -118,7 +138,13 @@ describe('GET /api/news', () => {
         await handler(makeReq({ category: 'all' }), res as NextApiResponse);
 
         expect(res.statusCode).toBe(502);
-        expect(res.body).toEqual({ articles: [], error: 'upstream down' });
+        expect(res.body).toEqual({
+            articles: [],
+            page: 1,
+            pageSize: 15,
+            hasMore: false,
+            error: 'upstream down',
+        });
     });
 
     it('uses a default error message when thrown value is not an Error', async () => {
@@ -128,6 +154,12 @@ describe('GET /api/news', () => {
         await handler(makeReq({}), res as NextApiResponse);
 
         expect(res.statusCode).toBe(502);
-        expect(res.body).toEqual({ articles: [], error: 'Failed to fetch news' });
+        expect(res.body).toEqual({
+            articles: [],
+            page: 1,
+            pageSize: 15,
+            hasMore: false,
+            error: 'Failed to fetch news',
+        });
     });
 });

@@ -17,9 +17,9 @@ const USER_AGENT = 'mochabbang-news/0.1 (+https://github.com/) RSS-aggregator';
 const FETCH_TIMEOUT_MS = 8000;
 const IMAGE_FETCH_TIMEOUT_MS = 3000;
 const IMAGE_ENRICH_CONCURRENCY = 5;
-const PER_FEED_LIMIT = 15;
-const TOP_LIMIT = 30;
-const SEARCH_LIMIT = 20;
+const PER_FEED_LIMIT = 20;
+const TOP_LIMIT = 90;
+const SEARCH_LIMIT = 40;
 
 const parser = new XMLParser({
     ignoreAttributes: false,
@@ -260,6 +260,35 @@ function dedupeAndSort(articles: NormalizedArticle[]): NormalizedArticle[] {
         .sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
 }
 
+export function diversifyBySource(
+    articles: NormalizedArticle[],
+): NormalizedArticle[] {
+    const groups = new Map<string, NormalizedArticle[]>();
+
+    for (const article of dedupeAndSort(articles)) {
+        const key = article.source.name || 'unknown';
+        groups.set(key, [...(groups.get(key) ?? []), article]);
+    }
+
+    const buckets = Array.from(groups.values());
+    const result: NormalizedArticle[] = [];
+
+    while (buckets.some((bucket) => bucket.length > 0)) {
+        buckets.sort((a, b) => {
+            const aTime = a[0] ? +new Date(a[0].publishedAt) : 0;
+            const bTime = b[0] ? +new Date(b[0].publishedAt) : 0;
+            return bTime - aTime;
+        });
+
+        for (const bucket of buckets) {
+            const article = bucket.shift();
+            if (article) result.push(article);
+        }
+    }
+
+    return result;
+}
+
 function isRssCategory(value: string): value is RssCategory {
     return [
         'all',
@@ -281,7 +310,7 @@ export async function fetchKoreanRss(
     if (articles.length === 0) {
         throw new Error('Korean RSS returned no articles');
     }
-    const topArticles = dedupeAndSort(articles).slice(0, TOP_LIMIT);
+    const topArticles = diversifyBySource(articles).slice(0, TOP_LIMIT);
     return enrichMissingImages(topArticles);
 }
 
@@ -302,6 +331,7 @@ export async function searchKoreanRss(
     if (matched.length === 0) {
         throw new Error('Korean RSS search returned no matches');
     }
-    const topMatches = dedupeAndSort(matched).slice(0, SEARCH_LIMIT);
+    const topMatches = diversifyBySource(matched).slice(0, SEARCH_LIMIT);
     return enrichMissingImages(topMatches);
 }
+

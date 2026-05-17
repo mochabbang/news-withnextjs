@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function NewsItemSkeleton() {
     return (
         <Card className="flex overflow-hidden">
-            <Skeleton className="h-[72px] w-32 shrink-0 sm:h-[90px] sm:w-40" />
+            <Skeleton className="w-32 shrink-0 aspect-video sm:w-40" />
             <CardContent className="flex-1 p-3 space-y-2">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-full" />
