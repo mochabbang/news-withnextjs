@@ -248,7 +248,9 @@ async function fetchFeedsParallel(
     );
 }
 
-function dedupeAndSort(articles: NormalizedArticle[]): NormalizedArticle[] {
+export function sortByPublishedAt(
+    articles: NormalizedArticle[],
+): NormalizedArticle[] {
     const seen = new Set<string>();
     return articles
         .filter((a) => {
@@ -258,35 +260,6 @@ function dedupeAndSort(articles: NormalizedArticle[]): NormalizedArticle[] {
             return true;
         })
         .sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-}
-
-export function diversifyBySource(
-    articles: NormalizedArticle[],
-): NormalizedArticle[] {
-    const groups = new Map<string, NormalizedArticle[]>();
-
-    for (const article of dedupeAndSort(articles)) {
-        const key = article.source.name || 'unknown';
-        groups.set(key, [...(groups.get(key) ?? []), article]);
-    }
-
-    const buckets = Array.from(groups.values());
-    const result: NormalizedArticle[] = [];
-
-    while (buckets.some((bucket) => bucket.length > 0)) {
-        buckets.sort((a, b) => {
-            const aTime = a[0] ? +new Date(a[0].publishedAt) : 0;
-            const bTime = b[0] ? +new Date(b[0].publishedAt) : 0;
-            return bTime - aTime;
-        });
-
-        for (const bucket of buckets) {
-            const article = bucket.shift();
-            if (article) result.push(article);
-        }
-    }
-
-    return result;
 }
 
 function isRssCategory(value: string): value is RssCategory {
@@ -310,7 +283,7 @@ export async function fetchKoreanRss(
     if (articles.length === 0) {
         throw new Error('Korean RSS returned no articles');
     }
-    const topArticles = diversifyBySource(articles).slice(0, TOP_LIMIT);
+    const topArticles = sortByPublishedAt(articles).slice(0, TOP_LIMIT);
     return enrichMissingImages(topArticles);
 }
 
@@ -331,7 +304,7 @@ export async function searchKoreanRss(
     if (matched.length === 0) {
         throw new Error('Korean RSS search returned no matches');
     }
-    const topMatches = diversifyBySource(matched).slice(0, SEARCH_LIMIT);
+    const topMatches = sortByPublishedAt(matched).slice(0, SEARCH_LIMIT);
     return enrichMissingImages(topMatches);
 }
 

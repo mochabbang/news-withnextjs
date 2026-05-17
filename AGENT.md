@@ -75,23 +75,22 @@ RSS 기사 이미지 추출 우선순위:
 
 `next/image fill`을 사용할 때는 wrapper가 `relative`여야 하며, 카드 레이아웃이 흔들리지 않도록 skeleton 크기와 실제 이미지 wrapper 크기를 맞춥니다.
 
-## 언론사 분산 정렬
+## 뉴스 등록일 정렬
 
-한국 RSS 결과는 단순 최신순으로만 정렬하지 않습니다. 특정 언론사가 첫 페이지를 독점하지 않도록 다음 흐름을 사용합니다.
+한국 RSS 결과는 언론사별로 섞지 않고 기사 등록일 기준 최신순으로 정렬합니다. 같은 언론사의 최신 기사가 연속으로 등록되어 있으면 그대로 연속 노출될 수 있습니다.
+
+처리 흐름:
 
 1. URL 기준 중복 제거
-2. 기사 최신순 정렬
-3. `source.name` 기준 그룹화
-4. 언론사별 bucket을 round-robin 방식으로 섞음
-5. 필요한 limit/page slice 적용
+2. `publishedAt` 기준 최신순 정렬
+3. 필요한 limit/page slice 적용
 
 관련 함수:
 
-- `dedupeAndSort`
-- `diversifyBySource`
+- `sortByPublishedAt`
 - `fetchKoreanRss`
 
-검증할 때는 `/api/news?category=all&country=kr&page=1&pageSize=30` 응답에서 source 분포를 확인합니다.
+검증할 때는 `/api/news?category=all&country=kr&page=1&pageSize=30` 응답의 `publishedAt`이 내림차순인지 확인합니다.
 
 ## 페이징과 무한 스크롤
 
@@ -211,7 +210,7 @@ RSS 기사 이미지 추출 우선순위:
 
 - 한국 RSS 언론사 추가 및 이미지 fallback/enrichment 개선
 - 리스트 이미지 크기를 비율 기반 기존 방식으로 원상복구
-- 한국 뉴스 언론사별 분산 정렬 적용
+- 한국 뉴스 등록일 최신순 정렬 적용
 - `/api/news` page/pageSize 기반 페이징 추가
 - 메인 페이지 무한 스크롤 추가
 - 한국경제를 기본 `all` 뉴스 피드에 포함
