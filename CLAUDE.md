@@ -81,6 +81,28 @@ w-32 shrink-0 aspect-video sm:w-40
 
 메인 페이지는 `IntersectionObserver`로 다음 페이지를 불러오고 URL 기준 중복 제거를 수행합니다.
 
+## 예정 기능 개선 계획
+
+다음 기능은 향후 우선순위가 높은 개선 항목입니다.
+
+1. 사용자 접속 이력
+   - 방문/기사 클릭/검색/카테고리 변경 이벤트를 수집하는 방향을 검토합니다.
+   - Vercel Analytics 또는 서버 측 `/api/analytics/visit` + 관리형 DB 방식을 비교합니다.
+   - IP/User-Agent 등 개인정보 가능성이 있는 값은 최소 수집, hashing/truncation, 미저장을 우선 검토합니다.
+   - analytics 실패가 뉴스 조회 UX를 막으면 안 됩니다.
+
+2. SEO 추가
+   - Pages Router 기준 `next/head`와 공통 SEO helper/component를 사용합니다.
+   - title, description, canonical, Open Graph, Twitter Card를 페이지별로 구성합니다.
+   - 기사 상세에는 `NewsArticle` JSON-LD 구조화 데이터 추가를 검토합니다.
+   - `robots.txt`와 `sitemap.xml` 또는 동적 sitemap API를 추가합니다.
+
+3. 구글 애드센스 추가
+   - AdSense publisher ID는 환경변수로 관리합니다. 예: `NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT`
+   - 광고 script는 production에서 조건부로 1회만 삽입합니다.
+   - 광고 컴포넌트를 분리하고 목록 중간/기사 상세 하단 등 제한된 위치부터 적용합니다.
+   - 환경변수가 없거나 광고 로딩이 실패해도 페이지 렌더링이 깨지면 안 됩니다.
+
 ## 검증 명령
 
 작은 변경:

@@ -120,6 +120,73 @@ RSS 기사 이미지 추출 우선순위:
 - URL 기준 중복 제거
 - category/country 변경 시 목록과 page 상태 초기화
 
+## 예정 기능 개선 계획
+
+다음 항목은 우선 검토/구현할 기능 개선 계획입니다.
+
+### 1. 사용자 접속 이력
+
+목표:
+
+- 방문자 접속 이력과 기본 사용 흐름을 파악합니다.
+- 개인을 직접 식별하는 정보 수집은 최소화합니다.
+
+구현 방향:
+
+- Vercel Analytics 또는 직접 구현한 서버 측 이벤트 로깅 중 하나를 선택합니다.
+- 직접 구현 시 `/api/analytics/visit` 같은 서버 API를 두고 페이지 방문, 기사 클릭, 검색어, 국가/카테고리 변경 이벤트를 기록합니다.
+- IP, User-Agent 등 개인정보 가능성이 있는 값은 저장 전 hashing/truncation 또는 미저장을 우선 검토합니다.
+- 저장소는 Vercel Postgres, Supabase, Neon, Firebase 등 배포 환경과 맞는 관리형 DB를 우선 검토합니다.
+- 관리자 확인 화면이 필요하면 별도 보호된 admin route를 추가합니다.
+
+검증 기준:
+
+- 새 방문/기사 클릭/검색 이벤트가 중복 과다 없이 기록됩니다.
+- 개인정보 최소 수집 원칙을 문서화합니다.
+- 클라이언트 오류나 analytics API 실패가 뉴스 사용 흐름을 막지 않습니다.
+
+### 2. SEO 추가
+
+목표:
+
+- 메인/검색/기사 상세 페이지의 검색 노출 품질을 개선합니다.
+- 뉴스 사이트로서 기본 metadata와 crawlability를 갖춥니다.
+
+구현 방향:
+
+- Pages Router 기준으로 `next/head`를 사용합니다.
+- 공통 SEO 컴포넌트 또는 helper를 만들고 title, description, canonical, Open Graph, Twitter Card를 관리합니다.
+- 기사 상세 페이지에는 기사 제목/요약/이미지를 기반으로 동적 metadata를 구성합니다.
+- `robots.txt`, `sitemap.xml` 또는 동적 sitemap API를 추가합니다.
+- JSON-LD `NewsArticle` 구조화 데이터를 기사 상세에 추가하는 것을 검토합니다.
+
+검증 기준:
+
+- 페이지별 title/description/canonical이 중복 없이 생성됩니다.
+- 공유 미리보기 이미지와 설명이 정상 표시됩니다.
+- sitemap/robots가 production URL 기준으로 응답합니다.
+
+### 3. 구글 애드센스 추가
+
+목표:
+
+- Google AdSense 승인과 광고 게재를 위한 기본 스크립트/슬롯을 추가합니다.
+- 뉴스 목록 UX를 과도하게 해치지 않는 광고 위치를 사용합니다.
+
+구현 방향:
+
+- AdSense publisher ID는 환경변수로 관리합니다. 예: `NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT`
+- `_document.tsx` 또는 `_app.tsx`/공통 Head에 AdSense script를 조건부 삽입합니다.
+- 광고 컴포넌트를 별도로 만들고 client ID, slot ID, format, responsive 설정을 props로 관리합니다.
+- 광고 위치는 우선 목록 중간, 기사 상세 하단 등 제한된 위치부터 적용합니다.
+- 개발/테스트 환경에서는 실제 광고 로딩을 막거나 no-op 처리합니다.
+
+검증 기준:
+
+- 환경변수가 없으면 광고 script/slot이 렌더링되지 않습니다.
+- production에서 AdSense script가 1회만 삽입됩니다.
+- 광고 로딩 실패가 페이지 렌더링을 깨지 않습니다.
+
 ## Vercel/GitHub 배포 흐름
 
 이 저장소는 GitHub와 Vercel이 연결되어 있습니다.
