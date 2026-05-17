@@ -83,6 +83,19 @@ describe('NewsItem', () => {
         expect(screen.getByAltText('테스트 기사 제목')).toBeInTheDocument();
     });
 
+    it('keeps the thumbnail container at a fixed size to avoid layout shift', () => {
+        render(<NewsItem {...makeArticle()} />);
+
+        expect(screen.getAllByRole('link')[0]).toHaveClass(
+            'h-[72px]',
+            'w-32',
+            'sm:h-[90px]',
+            'sm:w-40',
+            'shrink-0',
+            'overflow-hidden',
+        );
+    });
+
     it('uses fallback image alt when urlToImage is null', () => {
         render(<NewsItem {...makeArticle({ urlToImage: null })} />);
         expect(screen.getByAltText('이미지 없음 — 테스트 기사 제목')).toBeInTheDocument();

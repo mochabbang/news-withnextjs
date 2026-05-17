@@ -49,7 +49,7 @@ export default function NewsItem(props: Props) {
                 href={href}
                 onClick={handleNavigate}
                 aria-label={`기사 읽기: ${title}`}
-                className="relative w-32 sm:w-40 shrink-0 aspect-video"
+                className="relative h-[72px] w-32 shrink-0 overflow-hidden bg-muted sm:h-[90px] sm:w-40"
             >
                 <NewsImage src={urlToImage} alt={title} />
             </Link>
