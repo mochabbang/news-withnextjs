@@ -2,7 +2,6 @@ export const NEWS_COUNTRIES = [
     { code: 'kr', label: '한국', language: 'ko' },
     { code: 'us', label: '미국', language: 'en' },
     { code: 'gb', label: '영국', language: 'en' },
-    { code: 'jp', label: '일본', language: 'ja' },
     { code: 'cn', label: '중국', language: 'zh' },
     { code: 'de', label: '독일', language: 'de' },
     { code: 'fr', label: '프랑스', language: 'fr' },

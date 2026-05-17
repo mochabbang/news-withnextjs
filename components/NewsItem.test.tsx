@@ -63,10 +63,10 @@ describe('NewsItem', () => {
     it('encodes sourceLanguage based on country prop', () => {
         const article = makeArticle();
         const id = encodeArticleId(article.url);
-        render(<NewsItem {...article} country="jp" />);
+        render(<NewsItem {...article} country="cn" />);
 
         fireEvent.click(screen.getAllByRole('link')[0]);
-        expect(loadArticleSnapshot(id)?.sourceLanguage).toBe('ja');
+        expect(loadArticleSnapshot(id)?.sourceLanguage).toBe('zh');
     });
 
     it('defaults country to "kr" when not provided', () => {
