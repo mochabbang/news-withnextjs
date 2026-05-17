@@ -1,4 +1,4 @@
-import { diversifyBySource, extractMetaImageFromHtml } from './koreanRss';
+import { extractMetaImageFromHtml, sortByPublishedAt } from './koreanRss';
 
 function makeArticle(title: string, sourceName: string, publishedAt: string) {
     return {
@@ -50,8 +50,8 @@ describe('koreanRss image extraction', () => {
     });
 });
 
-describe('koreanRss source diversity', () => {
-    it('interleaves articles from different publishers instead of letting one source dominate', () => {
+describe('koreanRss published order', () => {
+    it('sorts articles by published time instead of interleaving publishers', () => {
         const articles = [
             makeArticle('한겨레 1', '한겨레', '2026-05-17T10:00:00Z'),
             makeArticle('한겨레 2', '한겨레', '2026-05-17T09:59:00Z'),
@@ -61,9 +61,28 @@ describe('koreanRss source diversity', () => {
         ];
 
         expect(
-            diversifyBySource(articles)
+            sortByPublishedAt(articles)
                 .slice(0, 3)
-                .map((article) => article.source.name),
-        ).toEqual(['한겨레', 'SBS 뉴스', 'JTBC']);
+                .map((article) => article.title),
+        ).toEqual(['한겨레 1', '한겨레 2', '한겨레 3']);
+    });
+
+    it('deduplicates articles by canonical URL before sorting', () => {
+        const first = makeArticle(
+            '중복 원본',
+            '한겨레',
+            '2026-05-17T10:00:00Z',
+        );
+        const duplicate = {
+            ...makeArticle('중복 사본', 'SBS 뉴스', '2026-05-17T10:01:00Z'),
+            url: `${first.url}?utm_source=test`,
+        };
+        const older = makeArticle('이전 기사', 'JTBC', '2026-05-17T09:00:00Z');
+
+        expect(
+            sortByPublishedAt([first, duplicate, older]).map(
+                (article) => article.title,
+            ),
+        ).toEqual(['중복 원본', '이전 기사']);
     });
 });
