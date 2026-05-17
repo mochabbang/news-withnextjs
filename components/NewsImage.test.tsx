@@ -37,4 +37,17 @@ describe('NewsImage', () => {
         expect(after.getAttribute('src')).toContain(FALLBACK);
         expect(after).toHaveAttribute('alt', '이미지 없음 — 제목');
     });
+
+    it('updates rendered image when src prop changes', () => {
+        const { rerender } = render(
+            <NewsImage src="https://example.com/old.png" alt="제목" />,
+        );
+
+        rerender(<NewsImage src="https://example.com/new.png" alt="제목" />);
+
+        expect(screen.getByRole('img').getAttribute('src')).toContain(
+            'https://example.com/new.png',
+        );
+    });
+
 });
