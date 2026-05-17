@@ -5,6 +5,7 @@ import { NewsTopHeadLine } from '@/types/NewsTopHeadLine';
 import { getNews } from '@/apis/NewsApis';
 import Categories from '@/components/Categories';
 import CountrySelector from '@/components/CountrySelector';
+import EmailSubscriptionForm from '@/components/EmailSubscriptionForm';
 import NewsList from '@/components/NewsList';
 import Seo from '@/components/Seo';
 import { articlesToTopHeadline, getTopArticles } from '@/apis/newsService';
@@ -128,6 +129,7 @@ export default function Home({
                     disabled={loading}
                 />
             </div>
+            <EmailSubscriptionForm category={category} country={country} />
             {error && (
                 <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive mb-3">
                     {error}
