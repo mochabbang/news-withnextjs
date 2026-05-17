@@ -56,6 +56,7 @@ export const KOREAN_RSS_SOURCES: KoreanRssSource[] = [
         id: 'hankyung',
         name: '한국경제',
         feeds: {
+            all: 'https://www.hankyung.com/feed/economy',
             business: 'https://www.hankyung.com/feed/economy',
             entertainment: 'https://www.hankyung.com/feed/entertainment',
             science: 'https://www.hankyung.com/feed/it',
