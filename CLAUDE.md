@@ -81,6 +81,20 @@ w-32 shrink-0 aspect-video sm:w-40
 
 메인 페이지는 `IntersectionObserver`로 다음 페이지를 불러오고 URL 기준 중복 제거를 수행합니다.
 
+### 이메일 뉴스 구독/알림
+
+Supabase 기반 이메일 구독 MVP가 추가되었습니다.
+
+- 메인 페이지의 `EmailSubscriptionForm`에서 현재 country/category 기준 이메일 구독을 요청합니다.
+- Supabase Auth 이메일 인증 후 `/subscriptions/confirmed`에서 구독을 활성화합니다.
+- 서버 쓰기/발송 이력은 `SUPABASE_SERVICE_ROLE_KEY`로 처리합니다.
+- 스키마는 `supabase/migrations/202605170001_newsletter_notifications.sql`에 있습니다.
+- `/api/cron/send-top-news`는 `CRON_SECRET`으로 보호되고 `vercel.json`에서 2시간마다 실행됩니다.
+- 이메일 digest 발송은 Resend adapter(`RESEND_API_KEY`, `EMAIL_FROM`)를 사용합니다.
+- 구독자별 최근 24시간 내 발송 기사 URL은 재발송하지 않습니다.
+
+Supabase 설정 시 Auth redirect URL에 `/subscriptions/confirmed`를 허용해야 합니다.
+
 ## 예정 기능 개선 계획
 
 다음 기능은 향후 우선순위가 높은 개선 항목입니다.

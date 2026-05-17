@@ -119,6 +119,36 @@ RSS 기사 이미지 추출 우선순위:
 - URL 기준 중복 제거
 - category/country 변경 시 목록과 page 상태 초기화
 
+## 이메일 뉴스 구독/알림
+
+Supabase 기반 이메일 뉴스 구독 MVP를 사용합니다.
+
+주요 파일:
+
+- `supabase/migrations/202605170001_newsletter_notifications.sql`
+- `lib/supabase/admin.ts`
+- `lib/supabase/public.ts`
+- `apis/notifications/subscriptions.ts`
+- `apis/notifications/digest.ts`
+- `apis/messaging/email.ts`
+- `components/EmailSubscriptionForm.tsx`
+- `pages/subscriptions/confirmed.tsx`
+- `pages/api/subscriptions/email/subscribe.ts`
+- `pages/api/subscriptions/email/activate.ts`
+- `pages/api/subscriptions/unsubscribe.ts`
+- `pages/api/cron/send-top-news.ts`
+- `vercel.json`
+
+운영 기준:
+
+- 이메일 구독은 Supabase Auth 이메일 인증 후 `newsletter_subscriptions.active=true`가 됩니다.
+- DB 쓰기와 발송 이력 기록은 서버에서 `SUPABASE_SERVICE_ROLE_KEY`로만 처리합니다.
+- 공개 client에는 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`만 사용합니다.
+- Cron은 `/api/cron/send-top-news`를 2시간마다 호출하며 `CRON_SECRET`으로 보호합니다.
+- digest 이메일 발송은 Resend adapter를 사용합니다. `RESEND_API_KEY`와 `EMAIL_FROM`이 없으면 발송 실패로 기록됩니다.
+- 구독자별 최근 24시간 내 발송된 기사 URL은 재발송하지 않습니다.
+- Supabase 프로젝트를 새로 만들면 migration SQL을 먼저 적용하고, Auth redirect URL에 `/subscriptions/confirmed`를 허용해야 합니다.
+
 ## 예정 기능 개선 계획
 
 다음 항목은 우선 검토/구현할 기능 개선 계획입니다.
